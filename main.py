@@ -2,7 +2,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import os
 
-from flask import Flask, jsonify, Request, request
+from flask import Flask, jsonify, Request, request, make_response
 from flask_cors import CORS  # Import CORS
 
 from calculator import calculate
@@ -18,7 +18,7 @@ def process_gcode(req: Request = None):
         if 'FUNCTION_TARGET' in os.environ:
             r = req  # Get the request object for Cloud Functions
         else:
-            r = request  # Get the request object for local dev
+                    r = request  # Get the request object for local dev
 
         file = r.files['file']
         gcode_data = file.read().decode('utf-8')
@@ -26,7 +26,17 @@ def process_gcode(req: Request = None):
         cut_length = float(request.form.get('cutLength', 1.1))  # Default to 1.1 if not provided
 
         result = calculate(gcode_data, cut_length)  # Pass the G-code data to your calculate function
-        return jsonify(result)
+        resp = make_response(jsonify(result))
+        resp.headers['Content-Type'] = 'application/json'
+
+        h = resp.headers
+        # prepare headers for CORS authentication
+        h['Access-Control-Allow-Origin'] = r.environ['HTTP_ORIGIN']
+        h['Access-Control-Allow-Methods'] = 'POST'
+        h['Access-Control-Allow-Headers'] = 'X-Requested-With'
+
+        resp.headers = h
+        return resp
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
