@@ -9,7 +9,7 @@ This API calculates the optimal layer to stop a 3D print to plan a filament cut,
    python3.9 -m venv .venv
    source .venv/bin/activate
    ```
-    
+      
 2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt

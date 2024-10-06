@@ -2,7 +2,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import os
 
-from flask import Flask, jsonify, Request
+from flask import Flask, jsonify, Request, request
 from flask_cors import CORS  # Import CORS
 
 from calculator import calculate
@@ -12,13 +12,15 @@ CORS(app)  # Enable CORS for all routes
 
 
 @app.route('/', methods=['POST'])
-def process_gcode(request: Request):
+def process_gcode(req: Request = None):
     try:
-        # Get G-code data (choose one of the methods described earlier)
-        # 1. Directly from request body:
-        #   gcode_data = request.data.decode('utf-8')
-        # 2. From multipart/form-data:
-        file = request.files['file']
+        # Check if running on Cloud Functions
+        if 'FUNCTION_TARGET' in os.environ:
+            r = req._get_current_object()  # Get the request object for Cloud Functions
+        else:
+            r = request  # Get the request object for local dev
+
+        file = r.files['file']
         gcode_data = file.read().decode('utf-8')
         # Get cut_length from the request
         cut_length = float(request.form.get('cutLength', 1.1))  # Default to 1.1 if not provided
