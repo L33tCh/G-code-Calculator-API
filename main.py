@@ -16,7 +16,7 @@ def process_gcode(req: Request = None):
     try:
         # Check if running on Cloud Functions
         if 'FUNCTION_TARGET' in os.environ:
-            r = req._get_current_object()  # Get the request object for Cloud Functions
+            r = req  # Get the request object for Cloud Functions
         else:
             r = request  # Get the request object for local dev
 
